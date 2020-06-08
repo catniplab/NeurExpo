@@ -1,0 +1,32 @@
+body {
+  background-color:#202028
+}
+
+.main {
+  line-height: 50%
+}
+
+p {
+  color:white;
+  font-family: Courier
+}
+
+button {
+  background-color: #000000; /* Green */
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 24px;
+  height: 32px;
+  border-radius: 16px;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20%;
+  height: 25px;
+  background: #000000;
+}

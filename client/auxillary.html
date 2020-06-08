@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Spikes - Realtime Visualization</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="scripts/libs/jquery-3.4.0.min.js"></script>
+  <script src="scripts/libs/three.min.js"></script>
+  <script>
+    var separate = true;
+    var spikeGammas = [];
+
+    var address;
+    var spikePort;
+    var transmitting;
+    var timeScale;
+    var decay;
+    var AA;
+
+    var numSpikes;
+
+    function assignVars() {
+      var url = new URL(window.location.href);
+      address = url.searchParams.get('address');
+      spikePort = url.searchParams.get('spikePort');
+      transmitting = url.searchParams.get('transmitting');
+      timeScale = url.searchParams.get('timeScale');
+      decay = url.searchParams.get('decay');
+      AA = url.searchParams.get('AA');
+    }
+
+    function initSocket() {
+      spikeSocket = new WebSocket('ws://' + address + ':' + spikePort);
+      spikeSocket.binaryType = 'arraybuffer';
+      spikeSocket.onmessage = function(msg){spikeMessageHandler(msg)};
+    }
+  </script>
+</head>
+<body onload="assignVars(); initSocket(); console.log('body loaded');">
+  <div class="main" id="spike_div" align="center">
+  </div>
+  <script type="glsl" id="spike_vs">
+    varying vec4 vcenter;
+    varying vec4 vpos;
+    attribute vec4 dcenter;
+
+    void main(){
+      vcenter = projectionMatrix*viewMatrix*dcenter;
+      gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1);
+      vpos = gl_Position;
+    }
+  </script>
+  <script type="glsl" id="spike_fs">
+    varying vec4 vcenter;
+    varying vec4 vpos;
+    uniform vec2 resolution;
+    uniform vec4 coefficient;
+
+    void main(){
+      vec2 p = 0.175*resolution*(vpos.xy - vcenter.xy);
+      float d = length(p);
+      float a = 0.0;
+      vec3 steps = step(vec3(4, 8, 12), vec3(d));
+      a += coefficient.x*(1.0 - steps.x);
+      a += coefficient.y*(1.0 - steps.y)*steps.x;
+      a += coefficient.z*(1.0 - steps.z)*steps.y;
+      a += coefficient.w*steps.z;
+      gl_FragColor = vec4(a*vec3(0.2, 0.5, 0.3), 1);
+      //gl_FragColor = vec4(vec3(d), 1);
+      //gl_FragColor = vec4(10.0*p, 0, 1);
+    }
+  </script>
+  <script src="scripts/js/SetupSpikes.js"></script>
+  <script src="scripts/js/RenderSpikes.js"></script>
+</body>
+</html>

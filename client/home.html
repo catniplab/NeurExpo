@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>realtime-vis</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="scripts/libs/jquery-3.4.0.min.js"></script>
+</head>
+<body>
+  <div class="main" id="main" align="center">
+
+    <p>IP address of server:</p>
+    <input type="text" id="ipaddress"><br><br><br><br>
+
+    <p>Port for latent trajectory:</p>
+    <input type="text" id="trajPort"><br>
+    <p>Maximum number of points in the trajectory:</p>
+    <input type="text" id="maxPoints"><br><br><br>
+
+    <p>Port for spike trains:</p>
+    <input type="text" id="spikePort"><br>
+    <p>Time resolution (in milliseconds):</p>
+    <input type="text" id="timeScale"><br><br><br><br>
+
+    <p>Antialiasing (uncheck if you have a slow GPU):
+    <input type="checkbox" id="antialias" checked></checkbox></p><br>
+
+    <p>Render spikes in a separate window:
+    <input type="checkbox" id="separate" unchecked></checkbox></p><br><br><br><br>
+
+    <button type="button" id="init">Initialize</button>
+
+  </div>
+  <div class="main" id="traj_div" align="center">
+  </div>
+  <br><br>
+  <div class="main" id="spike_div" align="center">
+  </div>
+  <script src="scripts/libs/three.min.js"></script>
+  <script src="scripts/libs/OrbitControls.js"></script>
+  <script type="glsl" id="traj_vs">
+    attribute float vertPos;
+    varying float fragPos;
+
+    void main() {
+      gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1);
+      fragPos = vertPos;
+    }
+  </script>
+  <script type="glsl" id="traj_fs">
+    varying float fragPos;
+
+    void main() {
+      gl_FragColor = vec4(0.4, 1, 0.6, fragPos);
+    }
+  </script>
+  <script type="glsl" id="spike_vs">
+    varying vec4 vcenter;
+    varying vec4 vpos;
+    attribute vec4 dcenter;
+
+    void main(){
+      vcenter = projectionMatrix*viewMatrix*dcenter;
+      gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1);
+      vpos = gl_Position;
+    }
+  </script>
+  <script type="glsl" id="spike_fs">
+    varying vec4 vcenter;
+    varying vec4 vpos;
+    uniform vec2 resolution;
+    uniform vec4 coefficient;
+
+    void main(){
+      vec2 p = 0.175*resolution*(vpos.xy - vcenter.xy);
+      float d = length(p);
+      float a = 0.0;
+      vec3 steps = step(vec3(4, 8, 12), vec3(d));
+      a += coefficient.x*(1.0 - steps.x);
+      a += coefficient.y*(1.0 - steps.y)*steps.x;
+      a += coefficient.z*(1.0 - steps.z)*steps.y;
+      a += coefficient.w*steps.z;
+      gl_FragColor = vec4(a*vec3(0.2, 0.5, 0.3), 1);
+      //gl_FragColor = vec4(vec3(d), 1);
+      //gl_FragColor = vec4(10.0*p, 0, 1);
+    }
+  </script>
+  <script src="scripts/js/Setup.js"></script>
+  <script src="scripts/js/SetupTrajectory.js"></script>
+  <script src="scripts/js/SetupSpikes.js"></script>
+  <script src="scripts/js/RenderTrajectory.js"></script>
+  <script src="scripts/js/RenderSpikes.js"></script>
+  <script src="scripts/js/RenderAll.js"></script>
+</body>
+</html>
