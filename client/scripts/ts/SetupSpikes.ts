@@ -1,13 +1,23 @@
+/*
+
+This file is for defining how the client reacts to a message from the spike port as well as setting up the html page for rendering the spikes.
+
+*/
+
+//did the server tell us how many spike train channels there are?
 let rcvdNumSpikes = false;
+
+//is the spike train rendering paused? (gamma filter will continue to be updated)
 let spikesPaused = false;
 
 var spikeSocket : WebSocket;
+
 var numSpikes : number;
 
+//how to react to a message from the spike port
 function spikeMessageHandler(msg) {
 
-  console.log(msg);
-
+  //if we know how many spike channels there are, the message contains a list of spikes
   if(rcvdNumSpikes) {
     let view = new DataView(msg.data);
     let size = view.byteLength;
@@ -20,8 +30,10 @@ function spikeMessageHandler(msg) {
     }
   }
 
+  //if we don't know how many spike channels there are, this is what we expect to hear
+  //decode the message then set up the html
   else {
-    //figure out how many spike channels we are dealing with
+
     let view = new DataView(msg.data);
     numSpikes = view.getInt32(0);
     rcvdNumSpikes = true;
@@ -30,6 +42,8 @@ function spikeMessageHandler(msg) {
   }
 }
 
+//once we know how many spike train channels there are,
+//we can set up a properly sized canvas and make it look nice.
 function setUpSpikeDiv(ns : number, sdiv : HTMLDivElement) : void {
 
   //create and append a paragraph which will tell the user what the time scale is

@@ -1,29 +1,42 @@
+/*
+
+This file defines the basic helper variables and attaches an initialization function to the initialization button.
+
+*/
+
+//this object will store some basic rendering parameters retrieved from the server
+var paramObj;
+
+//button which initalizes connection to the server
 let initButton = document.getElementById('init');
 
+//render spikes and latent process in separate windows
 let separate = false;
 
 let transmitting = false;
 let paused = false;
 
-var address : string;
+var address : string; //IP of server
+var trajPort : string; //port sending latent trajectory
+var spikePort : string; //port sending the spike trains
 
-var trajPort : string;
-var dimension : number;
-var maxTrajPoints : number;
+var dimension : number; //dimension of latent trajectory
+var maxTrajPoints : number; //maximum number of points rendered in the trajectory at once
 
-var spikePort : string;
-var timeScale : number;
-var decay : number;
+var timeScale : number; //how long do we want to see the effects of a paricular spike?
+var decay : number; //computed from timescale
 
-var AA;
+var AA; //anti-aliasing
 
+//the state of each render disk for each spike train channel
 var spikeGammas : THREE.Vector4[] = [];
 
-var numSliders : number;
-var parameters : Float32Array;
-var sliderArray : HTMLInputElement[];
-var projection : Float32Array[];
+var numSliders : number; //computed from dimension of trajectory
+var parameters : Float32Array; //computed from slider values
+var sliderArray : HTMLInputElement[]; //array of elements pointing to the sliders
+var projection : Float32Array[]; //orthographic projection matrix used to visualize trajectory
 
+//does the projection matrix need to be updated?
 let projectionUpdate = false;
 
 //read the user inputs and initialize the websockets
@@ -75,4 +88,5 @@ initButton.onclick = function() {
     spikeSocket.binaryType = 'arraybuffer';
     spikeSocket.onmessage = function(msg){spikeMessageHandler(msg);};
   }
+
 }

@@ -1,3 +1,11 @@
+/*
+
+This file defines the main functions for rendering both spikes and trajectory.
+We have to use different functions based on whether the trajecotry is 2-, 3-, or high-dimensional.
+These functions are called by SetupTrajectory.beginTransmission after we receive initial data from the server.
+
+*/
+
 function animate2D() : void {
   requestAnimationFrame(animate2D);
   if(!paused) {

@@ -8,6 +8,9 @@ The disk is shaded so that each layer corresponds to a different time-scale,
 with the brightness of each layer decaying exponentially.
 */
 
+//get some rendering parameters from RenderParams.js
+let spikeParams = paramObj.spike_params
+
 //spike rendering utilities
 var spikeCanvas : HTMLCanvasElement;
 var spikeScene : THREE.Scene;

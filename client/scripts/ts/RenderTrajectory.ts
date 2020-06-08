@@ -10,6 +10,9 @@ in the current trajectory (which is fairly strenuous for the CPU is the dimensio
 is high and the trajectory is long).
 */
 
+//get some rendering parameters from RenderParams.js
+let trajParams = paramObj.traj_params
+
 //trajectory rendering utilities
 var trajScene : THREE.Scene;
 var trajRenderer : THREE.Renderer;

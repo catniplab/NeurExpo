@@ -1,13 +1,24 @@
+/*
+
+This file is for defining how the client reacts to a message from the trajectory port and setting up the html accordingly.
+
+*/
+
+//did we receive the dimension of the trajectory yet?
 let rcvdDimension = false;
 
+//how many points are currently rendered in the trajectory?
 let trajDrawCount = 0;
-let maxTrajCoords = dimension*maxTrajPoints;
+
+//maximum number of floating point coordinates used for defining the trajectory
+var maxTrajCoords : number
 
 //array for storing the incoming positions
 let queuedPos = new Array();
 
 var trajSocket : WebSocket;
 
+//this shouldn't need to be a thing . . .
 function clone(array : Float32Array) : Float32Array {
   let l = array.length;
   let result = new Float32Array(l);
@@ -16,8 +27,11 @@ function clone(array : Float32Array) : Float32Array {
   return result;
 }
 
+//how to we react to a message from the trajectory port
 function trajMessageHandler(msg) {
 
+  //if we already know the dimension, the message contains a set of points
+  //which need to be pushed to the array of queued positions
   if(rcvdDimension) {
 
     if(trajDrawCount < maxTrajPoints)
@@ -25,7 +39,7 @@ function trajMessageHandler(msg) {
 
     //help read and store the data
     let view = new DataView(msg.data);
-    let numNew = view.getUint32(0);
+    let numNew = view.getUint32(0); //first 32 bits define the number of new points in the message
     let helper = new Float32Array(dimension);
 
     //put the coordinates into helper and put helper into queued positions
@@ -34,13 +48,17 @@ function trajMessageHandler(msg) {
       for(let j = 0; j < dimension; j++) {
         helper[j] = view.getFloat32(4*j + k + 4);
       }
-      queuedPos.push(clone(helper));
+      queuedPos.push(clone(helper)); //bad stuff happens if you don't clone here
     }
   }
 
+  //if we don't know the dimension we expect to get it in the first message
+  //set up the html properly after decoding it
   else {
     let view = new DataView(msg.data);
     dimension = view.getInt32(0);
+    maxTrajCoords = dimension*maxTrajPoints;
+
     rcvdDimension = true;
 
     setUpTrajDiv(dimension);
@@ -108,6 +126,9 @@ function insertSliders(dim : number, divElem : HTMLDivElement) : number {
   return numSliders;
 }
 
+//this function is called when the user presses the "Begin Transmission" button.
+//it basically tells the server to start sending data (both spikes and trajectory)
+//it also updates html and initializes rendering
 function beginTransmission() : void {
 
   let serverStart = document.getElementById('serverStart');
@@ -180,6 +201,7 @@ function beginTransmission() : void {
   }
 }
 
+//set up the html for rendering and interacting with the latent trajectory.
 //called when the trajectory websocket receives the dimension of the trajectory from the server
 function setUpTrajDiv(dim : number) : void {
 
