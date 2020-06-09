@@ -40,7 +40,7 @@ function initSpikeRendering(aa : boolean) : void {
   let y0 = Math.floor(numSpikes/12)/2;
   y0 *= 3;
   y0 -= 0.4*ch;
-  spikeCamera.position.set(0, y0, -5);
+  spikeCamera.position.set(0, y0, -5); //weird but its the only way I could get them centered
   spikeCamera.lookAt(new THREE.Vector3(0, y0, 0));
 
   //construct each disk and add it to the scene
@@ -56,12 +56,13 @@ function initSpikeRendering(aa : boolean) : void {
       fragmentShader: spikeFS,
       uniforms: {
         resolution: {type: 'v2', value: new THREE.Vector2(width, height)},
-        coefficient: {type: 'v4', value: spikeGammas[i]}
+        coefficient: {type: 'v4', value: spikeGammas[i]},
+        color: {type: 'v3', value: new THREE.Vector3(spikeParams.r, spikeParams.g, spikeParams.b)}
       }
     });
 
     //construct geometry, add attribute for center position
-    let geometry = new THREE.CircleBufferGeometry(1.2, 64);
+    let geometry = new THREE.CircleBufferGeometry(1.2, spikeParams.tris_per_disk);
     let dcenters = new Float32Array(264);
     for(let j = 0; j < 66; j++) {
       dcenters[4*j]     = x;
@@ -69,7 +70,7 @@ function initSpikeRendering(aa : boolean) : void {
       dcenters[4*j + 2] = 0;
       dcenters[4*j + 3] = 1;
     }
-    geometry.addAttribute('dcenter', new THREE.BufferAttribute(dcenters, 4));
+    geometry.setAttribute('dcenter', new THREE.BufferAttribute(dcenters, 4));
 
     //construct the disk and set its position
     disks[i] = new THREE.Mesh(geometry, spikeShaders[i]);

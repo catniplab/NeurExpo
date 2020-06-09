@@ -33,18 +33,18 @@ function init2D(aa : boolean) : void {
   trajCanvas = <HTMLCanvasElement> document.getElementById('traj_canvas');
 
   //set up camera for rendering trajectory
-  trajCamera = new THREE.PerspectiveCamera(60,
+  trajCamera = new THREE.PerspectiveCamera(trajParams.camera.fov,
                                            trajCanvas.clientWidth/trajCanvas.clientHeight,
-                                           0.1,
-                                           100);
+                                           trajParams.camera.near,
+                                           trajParams.camera.far);
   cameraControl = new THREE.OrbitControls(trajCamera, trajCanvas);
   cameraControl.rotateSpeed = 0.0;
-  trajCamera.position.set(0, 0, 3);
+  trajCamera.position.set(trajParams.camera.x, trajParams.camera.y, trajParams.camera.z);
   trajCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
   //set up trajectory geometry
   trajGeometry = new THREE.BufferGeometry();
-  trajGeometry.addAttribute('position',
+  trajGeometry.setAttribute('position',
                             new THREE.BufferAttribute(new Float32Array(3*maxTrajPoints), 3)
                            );
   let ds = 1.0/maxTrajPoints;
@@ -52,16 +52,22 @@ function init2D(aa : boolean) : void {
   vertPos[0] = 0.0;
   for(let i = 1; i < maxTrajPoints; i++)
     vertPos[i] = vertPos[i - 1] + ds;
-  trajGeometry.addAttribute('vertPos', new THREE.BufferAttribute(vertPos, 1));
+  trajGeometry.setAttribute('vertPos', new THREE.BufferAttribute(vertPos, 1));
   trajGeometry.setDrawRange(0, trajDrawCount);
 
   //set up trajectory material
   trajMaterial = new THREE.ShaderMaterial({
 		vertexShader : document.getElementById('traj_vs').textContent,
     fragmentShader : document.getElementById('traj_fs').textContent,
+    uniforms : {
+      color : {
+        type: 'v3',
+        value: new THREE.Vector3(trajParams.curve.r, trajParams.curve.g, trajParams.curve.b)
+      }
+    },
 		depthWrite : false,
 		depthTest : false,
-    linewidth : 3,
+    linewidth : trajParams.curve.width,
     transparent : true
   });
 
@@ -158,19 +164,19 @@ function init3D(aa : boolean) : void {
   trajRenderer.setSize(trajCanvas.clientWidth, trajCanvas.clientHeight);
 
   //set up camera for rendering trajectory
-  trajCamera = new THREE.PerspectiveCamera(60,
+  trajCamera = new THREE.PerspectiveCamera(trajParams.camera.fov,
                                            trajCanvas.clientWidth/trajCanvas.clientHeight,
-                                           0.1,
-                                           100);
+                                           trajParams.camera.near,
+                                           trajParams.camera.far);
   cameraControl = new THREE.OrbitControls(trajCamera, trajCanvas);
   cameraControl.rotateSpeed = 0.5;
-  trajCamera.position.set(0, 0, 3);
+  trajCamera.position.set(trajParams.camera.x, trajParams.camera.y, trajParams.camera.z);
   trajCamera.lookAt(new THREE.Vector3(0, 0, 0));
   cameraControl.update();
 
   //set up trajectory geometry
   trajGeometry = new THREE.BufferGeometry();
-  trajGeometry.addAttribute('position',
+  trajGeometry.setAttribute('position',
                             new THREE.BufferAttribute(new Float32Array(3*maxTrajPoints), 3)
                            );
   let ds = 1.0/maxTrajPoints;
@@ -178,7 +184,7 @@ function init3D(aa : boolean) : void {
   vertPos[0] = 0.0;
   for(let i = 1; i < maxTrajPoints; i++)
     vertPos[i] = vertPos[i - 1] + ds;
-  trajGeometry.addAttribute('vertPos', new THREE.BufferAttribute(vertPos, 1));
+  trajGeometry.setAttribute('vertPos', new THREE.BufferAttribute(vertPos, 1));
   trajGeometry.setDrawRange(0, trajDrawCount);
 
   //set up trajectory material
@@ -187,7 +193,7 @@ function init3D(aa : boolean) : void {
     fragmentShader : document.getElementById('traj_fs').textContent,
 		depthWrite : false,
 		depthTest : false,
-    linewidth : 3,
+    linewidth : trajParams.curve.width,
     transparent : true
   });
 

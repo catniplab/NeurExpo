@@ -7,6 +7,8 @@ coordinate transformation, are based on the height of the canvas.
 The disk is shaded so that each layer corresponds to a different time-scale,
 with the brightness of each layer decaying exponentially.
 */
+//get some rendering parameters from RenderParams.js
+var spikeParams = paramObj.spike_params;
 //spike rendering utilities
 var spikeCanvas;
 var spikeScene;
@@ -32,7 +34,7 @@ function initSpikeRendering(aa) {
     var y0 = Math.floor(numSpikes / 12) / 2;
     y0 *= 3;
     y0 -= 0.4 * ch;
-    spikeCamera.position.set(0, y0, -5);
+    spikeCamera.position.set(0, y0, -5); //weird but its the only way I could get them centered
     spikeCamera.lookAt(new THREE.Vector3(0, y0, 0));
     //construct each disk and add it to the scene
     for (var i = 0; i < numSpikes; i++) {
@@ -49,11 +51,12 @@ function initSpikeRendering(aa) {
             fragmentShader: spikeFS,
             uniforms: {
                 resolution: { type: 'v2', value: new THREE.Vector2(width, height) },
-                coefficient: { type: 'v4', value: spikeGammas[i] }
+                coefficient: { type: 'v4', value: spikeGammas[i] },
+                color: { type: 'v3', value: new THREE.Vector3(spikeParams.r, spikeParams.g, spikeParams.b) }
             }
         });
         //construct geometry, add attribute for center position
-        var geometry = new THREE.CircleBufferGeometry(1.2, 64);
+        var geometry = new THREE.CircleBufferGeometry(1.2, spikeParams.tris_per_disk);
         var dcenters = new Float32Array(264);
         for (var j = 0; j < 66; j++) {
             dcenters[4 * j] = x;
@@ -61,7 +64,7 @@ function initSpikeRendering(aa) {
             dcenters[4 * j + 2] = 0;
             dcenters[4 * j + 3] = 1;
         }
-        geometry.addAttribute('dcenter', new THREE.BufferAttribute(dcenters, 4));
+        geometry.setAttribute('dcenter', new THREE.BufferAttribute(dcenters, 4));
         //construct the disk and set its position
         disks[i] = new THREE.Mesh(geometry, spikeShaders[i]);
         disks[i].position.x = x;

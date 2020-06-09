@@ -33,8 +33,6 @@ initButton.onclick = function () {
     separate = sepInput.checked;
     var ipInput = document.getElementById('ipaddress');
     address = ipInput.value;
-    var fileInput = document.getElementById('paramfile');
-    var paramFilename = fileInput.value;
     var tpInput = document.getElementById('trajPort');
     trajPort = tpInput.value;
     var mtpInput = document.getElementById('maxPoints');
@@ -69,16 +67,4 @@ initButton.onclick = function () {
         spikeSocket.binaryType = 'arraybuffer';
         spikeSocket.onmessage = function (msg) { spikeMessageHandler(msg); };
     }
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "https://" + address + "/" + paramFilename, false);
-    rawFile.onreadystatechange = function () {
-        if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-                var allText = rawFile.responseText;
-                alert(allText);
-            }
-        }
-    };
-    rawFile.send(null);
-    console.log(rawFile);
 };
