@@ -119,6 +119,7 @@ function beginTransmission() {
             transmitting = true;
             //tell the server that we are ready to receive data
             trajSocket.send('start');
+            spikeSocket.send('start');
             //rendering is different based on dimension of trajectory (see RenderTrajectory.ts)
             //the render loop for spikes will have already been initialized
             if (dimension == 2) {
