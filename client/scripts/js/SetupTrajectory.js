@@ -4,19 +4,19 @@ This file is for defining how the client reacts to a message from the trajectory
 
 */
 //did we receive the dimension of the trajectory yet?
-var rcvdDimension = false;
+let rcvdDimension = false;
 //how many points are currently rendered in the trajectory?
-var trajDrawCount = 0;
+let trajDrawCount = 0;
 //maximum number of floating point coordinates used for defining the trajectory
 var maxTrajCoords;
 //array for storing the incoming positions
-var queuedPos = new Array();
+let queuedPos = new Array();
 var trajSocket;
 //this shouldn't need to be a thing . . .
 function clone(array) {
-    var l = array.length;
-    var result = new Float32Array(l);
-    for (var i = 0; i < l; i++)
+    let l = array.length;
+    let result = new Float32Array(l);
+    for (let i = 0; i < l; i++)
         result[i] = array[i];
     return result;
 }
@@ -28,13 +28,13 @@ function trajMessageHandler(msg) {
         if (trajDrawCount < maxTrajPoints)
             trajDrawCount++;
         //help read and store the data
-        var view = new DataView(msg.data);
-        var numNew = view.getUint32(0); //first 32 bits define the number of new points in the message
-        var helper = new Float32Array(dimension);
+        let view = new DataView(msg.data);
+        let numNew = view.getUint32(0); //first 32 bits define the number of new points in the message
+        let helper = new Float32Array(dimension);
         //put the coordinates into helper and put helper into queued positions
-        for (var i = 0; i < numNew; i++) {
-            var k = 4 * dimension * i;
-            for (var j = 0; j < dimension; j++) {
+        for (let i = 0; i < numNew; i++) {
+            let k = 4 * dimension * i;
+            for (let j = 0; j < dimension; j++) {
                 helper[j] = view.getFloat32(4 * j + k + 4);
             }
             queuedPos.push(clone(helper)); //bad stuff happens if you don't clone here
@@ -43,7 +43,7 @@ function trajMessageHandler(msg) {
     //if we don't know the dimension we expect to get it in the first message
     //set up the html properly after decoding it
     else {
-        var view = new DataView(msg.data);
+        let view = new DataView(msg.data);
         dimension = view.getInt32(0);
         maxTrajCoords = dimension * maxTrajPoints;
         rcvdDimension = true;
@@ -66,11 +66,11 @@ function getBorderRadii(elem, fstInRow, lastInRow) {
 }
 //insert the appropriate number of sliders and listen for input, return the number of sliders
 function insertSliders(dim, divElem) {
-    var numSliders = 3 * dim - 9;
+    let numSliders = 3 * dim - 9;
     parameters = new Float32Array(numSliders);
     //add the sliders to the document
-    for (var i = 1; i <= numSliders; i++) {
-        var newSlider = document.createElement('INPUT');
+    for (let i = 1; i <= numSliders; i++) {
+        let newSlider = document.createElement('INPUT');
         newSlider.type = 'range';
         newSlider.min = '-99';
         newSlider.max = '99';
@@ -81,24 +81,21 @@ function insertSliders(dim, divElem) {
             divElem.innerHTML += '<br><br>';
     }
     sliderArray = new Array();
-    var inputDo = '';
-    var m4 = numSliders % 4;
-    var d4 = numSliders >> 2;
-    var _loop_1 = function (i) {
-        var mod4 = i % 4;
-        var fstInRow = mod4 == 1;
-        var lastInRow = mod4 == 0 || (i > 4 * d4 && mod4 == m4);
+    let inputDo = '';
+    let m4 = numSliders % 4;
+    let d4 = numSliders >> 2;
+    for (let i = 1; i <= numSliders; i++) {
+        let mod4 = i % 4;
+        let fstInRow = mod4 == 1;
+        let lastInRow = mod4 == 0 || (i > 4 * d4 && mod4 == m4);
         sliderArray.push(document.getElementById('param' + i));
         getBorderRadii(sliderArray[i - 1], fstInRow, lastInRow);
         sliderArray[i - 1].oninput = function () {
-            var val = 0.001 * sliderArray[i - 1].value;
+            let val = 0.001 * sliderArray[i - 1].value;
             parameters[i - 1] = Math.sign(val) * (Math.pow(12, Math.abs(val)) - 1);
             projection = getProjectionMatrix(dim, parameters);
             projectionUpdate = true;
         };
-    };
-    for (var i = 1; i <= numSliders; i++) {
-        _loop_1(i);
     }
     eval(inputDo);
     return numSliders;
@@ -107,7 +104,7 @@ function insertSliders(dim, divElem) {
 //it basically tells the server to start sending data (both spikes and trajectory)
 //it also updates html and initializes rendering
 function beginTransmission() {
-    var serverStart = document.getElementById('serverStart');
+    let serverStart = document.getElementById('serverStart');
     if (separate) {
         if (transmitting) {
             trajSocket.close();
@@ -170,19 +167,19 @@ function beginTransmission() {
 //set up the html for rendering and interacting with the latent trajectory.
 //called when the trajectory websocket receives the dimension of the trajectory from the server
 function setUpTrajDiv(dim) {
-    var trajDiv = document.getElementById('traj_div');
+    let trajDiv = document.getElementById('traj_div');
     //create and append start button
-    var startDiv = document.createElement('DIV');
+    let startDiv = document.createElement('DIV');
     startDiv.id = 'startDiv';
     trajDiv.appendChild(startDiv);
-    var serverStart = document.createElement('BUTTON');
+    let serverStart = document.createElement('BUTTON');
     serverStart.type = 'button';
     serverStart.id = 'serverStart';
     serverStart.innerHTML = 'Begin Transmission';
     startDiv.appendChild(serverStart);
     trajDiv.appendChild(document.createElement('BR'));
     //create and append trajectory rendering canvas
-    var tcanvas = document.createElement('CANVAS');
+    let tcanvas = document.createElement('CANVAS');
     tcanvas.id = 'traj_canvas';
     tcanvas.style.height = '477px';
     tcanvas.style.width = '848px';
@@ -191,11 +188,11 @@ function setUpTrajDiv(dim) {
     trajDiv.appendChild(tcanvas);
     trajDiv.appendChild(document.createElement('BR'));
     //create and append pause button
-    var pauseDiv = document.createElement('DIV');
+    let pauseDiv = document.createElement('DIV');
     pauseDiv.id = 'pauseDiv';
     pauseDiv.align = 'center';
     trajDiv.appendChild(pauseDiv);
-    var pauseBtn = document.createElement('BUTTON');
+    let pauseBtn = document.createElement('BUTTON');
     pauseBtn.id = 'pauseBtn';
     pauseBtn.type = 'button';
     pauseBtn.innerHTML = 'Pause';
@@ -208,7 +205,7 @@ function setUpTrajDiv(dim) {
     trajDiv.appendChild(document.createElement('BR'));
     //initialize projection matrix parameters
     if (dimension > 3) {
-        for (var i = 0; i < numSliders; i++)
+        for (let i = 0; i < numSliders; i++)
             parameters[i] = 0.001 * sliderArray[i].value;
     }
     $('#startDiv').on('click', 'button', beginTransmission);

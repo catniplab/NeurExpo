@@ -73,12 +73,15 @@ async def traj_server(dimension, websocket, path):
         time.sleep(0.01)
 
         bit_str, last_point = next_traj_points(dimension, last_point)
-        websocket.send(bit_str)
+        websocket.send(bytes(bit_str))
 
 
 if __name__ == "__main__":
 
     ip = subprocess.run(['hostname', '-I'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    l = len(ip)
+    ip = ip[0 : l - 1]
+
     print("\nMy IP address:")
     print(ip)
 

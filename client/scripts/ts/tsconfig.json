@@ -2,5 +2,18 @@
 	"compilerOptions": {
 		"target": "es6",
 		"moduleResolution": "node",
-	}
+		"outDir": "../js"
+	},
+	"files": [
+		"Setup.ts",
+		"SetupSpikes.ts",
+		"SetupTrajectory.ts",
+		"RenderTrajectory.ts",
+		"RenderSpikes.ts",
+		"RenderAll.ts"
+	],
+	"include": [
+		"../libs/*",
+		"../RenderParams.js"
+	]
 }

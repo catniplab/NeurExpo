@@ -4,20 +4,20 @@ This file is for defining how the client reacts to a message from the spike port
 
 */
 //did the server tell us how many spike train channels there are?
-var rcvdNumSpikes = false;
+let rcvdNumSpikes = false;
 //is the spike train rendering paused? (gamma filter will continue to be updated)
-var spikesPaused = false;
+let spikesPaused = false;
 var spikeSocket;
 var numSpikes;
 //how to react to a message from the spike port
 function spikeMessageHandler(msg) {
     //if we know how many spike channels there are, the message contains a list of spikes
     if (rcvdNumSpikes) {
-        var view = new DataView(msg.data);
-        var size = view.byteLength;
-        for (var i = 0; i < size; i += 4) {
+        let view = new DataView(msg.data);
+        let size = view.byteLength;
+        for (let i = 0; i < size; i += 4) {
             //the ID of the spike channel is encoded in the first 16 bits of the 32-bit block
-            var channelID = view.getUint16(i);
+            let channelID = view.getUint16(i);
             //the number of spikes since the last packet was received is encoded in the 2nd 16 bits
             spikeGammas[channelID].x += view.getUint16(i + 2);
         }
@@ -25,7 +25,7 @@ function spikeMessageHandler(msg) {
     //if we don't know how many spike channels there are, this is what we expect to hear
     //decode the message then set up the html
     else {
-        var view = new DataView(msg.data);
+        let view = new DataView(msg.data);
         numSpikes = view.getInt32(0);
         rcvdNumSpikes = true;
         setUpSpikeDiv(numSpikes, document.getElementById('spike_div'));
@@ -35,13 +35,13 @@ function spikeMessageHandler(msg) {
 //we can set up a properly sized canvas and make it look nice.
 function setUpSpikeDiv(ns, sdiv) {
     //create and append a paragraph which will tell the user what the time scale is
-    var scaleLabel = document.createElement('P');
+    let scaleLabel = document.createElement('P');
     scaleLabel.id = 'scale_label';
     scaleLabel.innerHTML = '<big>Time Scale: ' + timeScale + ' ms</big>';
     sdiv.appendChild(scaleLabel);
     sdiv.appendChild(document.createElement('BR'));
     //create and append a slider which adjusts the time scale of the spike train visualization
-    var scaleSlider = document.createElement('INPUT');
+    let scaleSlider = document.createElement('INPUT');
     scaleSlider.id = 'scale_slider';
     scaleSlider.type = 'range';
     scaleSlider.min = '1';
@@ -61,25 +61,25 @@ function setUpSpikeDiv(ns, sdiv) {
     sdiv.appendChild(document.createElement('BR'));
     //if the spikes are being rendered in a separate window, add a pause button
     if (separate) {
-        var spikePause = document.createElement('BUTTON');
+        let spikePause = document.createElement('BUTTON');
         spikePause.id = 'spikePauseBtn';
         spikePause.innerHTML = 'Pause';
-        var spDiv = document.createElement('DIV');
+        let spDiv = document.createElement('DIV');
         sdiv.appendChild(spDiv);
         spDiv.appendChild(spikePause);
         sdiv.appendChild(document.createElement('BR'));
     }
-    var spikeLabel = document.createElement('P');
+    let spikeLabel = document.createElement('P');
     spikeLabel.id = 'spike_label';
     spikeLabel.innerHTML = '<big>Spike Trains</big>';
     sdiv.appendChild(spikeLabel);
     sdiv.appendChild(document.createElement('BR'));
     //create and append spike rendering canvas
-    var scanvas = document.createElement('CANVAS');
+    let scanvas = document.createElement('CANVAS');
     scanvas.id = 'spike_canvas';
-    var height = 120 * Math.ceil(numSpikes / 12);
+    let height = 120 * Math.ceil(numSpikes / 12);
     scanvas.style.height = height + 'px';
-    var width = 1440;
+    let width = 1440;
     scanvas.style.width = width + 'px';
     scanvas.style.backgroundColor = 'black';
     scanvas.style['border-radius'] = '12px';
@@ -91,7 +91,7 @@ function setUpSpikeDiv(ns, sdiv) {
         document.getElementById('spikePauseBtn').innerHTML = paused ? 'Unpause' : 'Pause';
     });
     //initilize the helper variable for the exponential filter computation
-    for (var i = 0; i < ns; i++)
+    for (let i = 0; i < ns; i++)
         spikeGammas.push(new THREE.Vector4(0, 0, 0, 0));
     if (separate) {
         initSpikeRendering(AA);
