@@ -79,13 +79,10 @@ async def traj_server(dimension, websocket, path):
 if __name__ == "__main__":
 
     ip = subprocess.run(['hostname', '-I'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    l = len(ip)
-    ip = ip[0 : l - 1]
-
     print("\nMy IP address:")
     print(ip)
 
-    port_in = input("Desired port for trajectory train server: ")
+    port_in = input("Desired port for trajectory server: ")
     port = int(port_in)
 
     dim_in = input("Desired dimension of trajectory: ")

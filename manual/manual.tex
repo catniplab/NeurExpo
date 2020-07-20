@@ -55,7 +55,7 @@ The hardware requirements for the client will vary based on the dimensionality o
 
 The client system ought to have a web browser installed which is compatible with \texttt{websockets} and \texttt{WebGL} (most modern browsers satisfy this requirement).
 
-In order to run the example \texttt{python} server, all that is required is \texttt{python} 2.7 or later.
+In order to run the example \texttt{python} server, all that is required is \texttt{python} 2.7 or later and the `websockets` package.
 
 \chapter{Initial Menu}
 
@@ -66,7 +66,7 @@ In order to run the example \texttt{python} server, all that is required is \tex
 
 Upon opening \texttt{home.html}, found in the \texttt{client} folder, in your browser, you will be presented with a menu where you must input some information.
 
-\section{IP Adress}
+\section{IP Address}
 
 The first piece of information is the IP address of the server which will be streaming the data. The server is assumed to be run by you or one of your collaborators, so it is up to you to obtain the IP address.
 
@@ -163,9 +163,12 @@ Due to the nature of the gamma filter, the only data that is transmitted over th
 
 Specifically, every packet in this protocol is a sequence of 8-byte groups. The first four bytes of every group form a big endian unsigned integer indicating the ID of the channel from which a spike was detected. The second four bytes is a big endian unsigned integer which indicates how many spikes were detected on the given channel since the last packet was sent. Since your server can most likely send packets faster than a neuron can fire, this number is almost always 1.
 
-\chapter{Using the Example Server}
+\chapter{Using the Example Servers}
 
-Included in the NeurExpo repo is python code for an example server. This program will generate and send any number of random spike trains to a client as well as a random walk of any dimension.
+Included in the NeurExpo repo is python code for a pair of example servers. These two scripts were written to provide an accessible illustration of how to use the spike and trajectory transmission protocols.
+
+With python 2.7 or later and the python `websockets` package installed, simply run both of these scripts on separate command lines. You will be asked to input the desired ports, the dimension of the trajectory, and the number of spike trains. After inputting this information, the servers will wait for a request from the client. Enter the corresponding information into the client's menu, and initialize. The trajectory server will send a noisy Lorenz system over the websocket, and the spike train server will send a procedural spike train.
+
 
 \chapter{Navigating the GUI}
 

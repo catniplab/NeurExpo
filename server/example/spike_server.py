@@ -62,9 +62,6 @@ async def spike_server(num_spikes, websocket, path):
 if __name__ == "__main__":
 
     ip = subprocess.run(['hostname', '-I'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    l = len(ip)
-    ip = ip[0 : l - 1]
-
     print("\nMy IP address:")
     print(ip)
 
